@@ -1,0 +1,82 @@
+Compose a function with a single regular expression that successfully meets requirements below:
+
+This regular expression should validate the maximum string length (passed as parameter); it should return a match if the string length is within the acceptable range and a non-match if it is not.
+
+This regular expression should also validate that the string contains at least one uppercase letter, one lowercase letter, one digit, and one special character from a predefined list: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~. It should return a match if the criteria are met and a non-match if they are not.
+
+This regular expression should validate that the string does not contain any whitespace characters (spaces, tabs, or newlines). This should return a non-match if any whitespace characters are found.
+
+The regular expression should be optimized for execution speed and simplicity. The regular expression should still fulfill all the above criteria.
+
+The regular expression should be tested in code on a variety of sample inputs and edge cases (10) to ensure the regex is functioning properly.
+
+The regular expression should be implemented within the code in a way that it can be easily reused for various inputs.
+
+Implementation should not introduce any unexpected behavior or bugs.
+
+Clear and concise documentation should be provided for the regular expression, explaining how it works, and any caveats or limitations.
+(use java 11)
+ChatGPT
+Let's tackle this step by step:
+
+Compose the Regular Expression:
+The regex can be broken down into several components:
+
+^ and $: Assert the beginning and end of a string.
+(?=.*[A-Z]): Positive lookahead for an uppercase letter.
+(?=.*[a-z]): Positive lookahead for a lowercase letter.
+(?=.*\d): Positive lookahead for a digit.
+(?=.*[!"#$%&'()*+,-./:;<=>?@[\]^_{|}~])`: Positive lookahead for a special character.
+[^\s]{1,n}: Ensure that there are only non-whitespace characters and limit the total length to n.
+Now, let's convert these components into a function:
+
+Java Implementation:
+java
+Copy code
+import java.util.regex.Pattern;
+
+public class RegexValidator {
+
+    public static boolean isValid(String input, int maxLength) {
+        String regex = String.format(
+            "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!\"#$%%&'()*+,-./:;<=>?@[\\]^_`{|}~])[^\\s]{1,%d}$",
+            maxLength
+        );
+
+        Pattern pattern = Pattern.compile(regex);
+        return pattern.matcher(input).matches();
+    }
+
+    public static void main(String[] args) {
+        // Test cases
+        String[] tests = {
+            "Aa1!",        // True: Meets all criteria
+            "A a1!",       // False: Contains whitespace
+            "Aa!1",        // True: Meets all criteria
+            "aaaa",        // False: Missing uppercase and digit
+            "AAAA1!",      // False: Missing lowercase
+            "Aa1",         // False: Missing special character
+            "Aa1!Aa1!Aa",  // True: Meets all criteria
+            "Aa1!Aa1!Aaa", // False: Exceeds maxLength (for maxLength=10)
+            "A@1a",        // True: Meets all criteria
+            "\nAa1!"       // False: Contains whitespace (newline)
+        };
+
+        for (String test : tests) {
+            System.out.println(isValid(test, 10));
+        }
+    }
+}
+Documentation:
+^: Asserts the beginning of a string.
+(?=.*[A-Z]): Ensures there's at least one uppercase letter.
+(?=.*[a-z]): Ensures there's at least one lowercase letter.
+(?=.*\d): Ensures there's at least one digit.
+(?=.*[!"#$%&'()*+,-./:;<=>?@[\]^_{|}~])`: Ensures there's at least one special character.
+[^\s]{1,n}: Ensures there are only non-whitespace characters and the total length is from 1 to n.
+$: Asserts the end of a string.
+Caveats/Limitations:
+
+If the string has other special characters outside of the predefined list, it will still match.
+The function requires the maximum length as an argument; you need to provide that dynamically.
+The regex uses positive lookaheads, which can be computationally intensive for very long strings (though for most applications, it should be just fine).
